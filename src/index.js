@@ -31,6 +31,11 @@ app.use('/api/chat',      require('./routes/chat'));
 // WebSocket
 initSocket(server);
 
+app.get('/', (req, res) => {
+  res.send('Сервер работает!');
+});
+
+
 // Start server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

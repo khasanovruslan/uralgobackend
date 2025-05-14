@@ -19,7 +19,10 @@ class Trip extends Model {
         price: { type: ['number', 'null'] },
         description: { type: ['string', 'null'], maxLength: 1000 },
         created_at: { type: 'string', format: 'date-time' },
-        updated_at: { type: 'string', format: 'date-time' }
+        updated_at: { type: 'string', format: 'date-time' },
+        available_seats: { type: 'integer' },
+        initial_passengers: { type: 'integer' },
+        allow_booking: { type: 'boolean' },
       }
     };
   }
