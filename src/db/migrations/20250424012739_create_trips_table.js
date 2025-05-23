@@ -8,9 +8,9 @@ exports.up = async (knex) => {
     table.string('destination', 255).notNullable();
     table.timestamp('departure_time').notNullable();
     table.integer('seats').notNullable();
-    table.integer('available_seats').notNullable().defaultTo(1);      // ✅ Добавлено
-    table.integer('initial_passengers').notNullable().defaultTo(1);  // ✅ Добавлено
-    table.boolean('allow_booking').notNullable().defaultTo(true);    // ✅ Добавлено
+    table.integer('available_seats').notNullable().defaultTo(1);   
+    table.integer('initial_passengers').notNullable().defaultTo(1); 
+    table.boolean('allow_booking').notNullable().defaultTo(true);   
     table.decimal('price');
     table.text('description');
     table.timestamps(true, true);
