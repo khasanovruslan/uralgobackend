@@ -1,9 +1,6 @@
 // File: src/middlewares/authMiddleware.js
 const jwt = require('jsonwebtoken');
 
-/**
- * Middleware для проверки авторизации по JWT
- */
 module.exports = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -17,7 +14,11 @@ module.exports = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId;
+    // Кладём сразу всю инфу о пользователе
+    req.user = {
+      id: decoded.userId,
+      roles: decoded.roles || []
+    };
     next();
   } catch (err) {
     return res.status(401).json({ message: 'Неверный или просроченный токен' });

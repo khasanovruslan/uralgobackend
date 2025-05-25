@@ -1,11 +1,12 @@
 // File: src/index.js
 require('dotenv').config();
-// Подключаем и инициализируем Objection + Knex
+// Подключаем и инициализируем Objection  Knex
 require('./config/db');
 
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
+const path    = require('path');
 
 const initSocket = require('./config/socket');
 
@@ -15,6 +16,12 @@ const server = http.createServer(app);
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+// Раздача папки uploads по URL /uploads
+app.use(
+  '/uploads',
+  express.static(path.resolve(__dirname, '../uploads'))
+);
 
 // Health-check
 app.get('/api/health', (req, res) => {
