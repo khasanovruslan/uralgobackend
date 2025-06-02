@@ -5,8 +5,10 @@ module.exports = {
   /** Создание новой поездки */
   async createTrip(req, res) {
     try {
-      const trip = await tripsService.createTrip(req.userId, req.body);
-      res.status(201).json(trip);
+      // Раньше: req.userId — undefined
+      // Стало: забираем id из req.user
+      const trip = await tripsService.createTrip(req.user.id, req.body);
+      res.status(200).json(trip);
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
@@ -41,7 +43,7 @@ module.exports = {
   async updateTrip(req, res) {
     try {
       const updated = await tripsService.updateTrip(
-        req.userId,
+        req.user.id,      // тоже поправляем здесь
         req.params.id,
         req.body
       );
@@ -54,7 +56,7 @@ module.exports = {
   /** Удаление поездки */
   async deleteTrip(req, res) {
     try {
-      await tripsService.deleteTrip(req.userId, req.params.id);
+      await tripsService.deleteTrip(req.user.id, req.params.id);
       res.status(204).end();
     } catch (err) {
       res.status(400).json({ message: err.message });

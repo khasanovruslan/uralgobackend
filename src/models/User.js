@@ -1,3 +1,4 @@
+//models/User.js
 const { Model } = require('objection');
 
 class User extends Model {
