@@ -1,9 +1,14 @@
-//models/User.js
-const { Model } = require('objection');
+// src/models/User.js
+const { Model, snakeCaseMappers } = require('objection');
 
 class User extends Model {
   static get tableName() {
     return 'users';
+  }
+
+  // ← Добавляем этот геттер:
+  static get columnNameMappers() {
+    return snakeCaseMappers();
   }
 
   static get jsonSchema() {
