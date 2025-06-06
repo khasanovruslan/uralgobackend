@@ -12,19 +12,19 @@ const {
 // Все маршруты требуют авторизации
 router.use(authMiddleware);
 
-// Создать поездку
+// POST   /api/trips       — создание новой поездки
 router.post('/', createTrip);
 
-// Поиск поездок (параметры: ?origin=&destination=&date=)
+// GET    /api/trips?origin=&destination=&date= — поиск/список
 router.get('/', searchTrips);
 
-// Получить поездку по ID
+// GET    /api/trips/:id   — получить одну поездку
 router.get('/:id', getTrip);
 
-// Обновить поездку
+// PUT    /api/trips/:id   — обновить поездку
 router.put('/:id', updateTrip);
 
-// Удалить поездку
+// DELETE /api/trips/:id   — удалить поездку
 router.delete('/:id', deleteTrip);
 
 module.exports = router;

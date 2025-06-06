@@ -3,24 +3,19 @@ const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ message: 'Отсутствует заголовок Authorization' });
-  }
+  if (!authHeader) return res.status(401).json({ message: 'Токен не предоставлен' });
 
   const token = authHeader.split(' ')[1];
-  if (!token) {
-    return res.status(401).json({ message: 'Токен не предоставлен' });
-  }
+  if (!token) return res.status(401).json({ message: 'Недопустимый формат токена' });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // Кладём сразу всю инфу о пользователе
     req.user = {
       id: decoded.userId,
-      roles: decoded.roles || []
+      roles: decoded.roles,
     };
     next();
-  } catch (err) {
+  } catch {
     return res.status(401).json({ message: 'Неверный или просроченный токен' });
   }
 };

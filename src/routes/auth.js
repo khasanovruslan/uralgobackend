@@ -1,9 +1,10 @@
 // File: src/routes/auth.js
 const router = require('express').Router();
-const { register, login } = require('../controllers/authController');
+const { register, login, refresh, logout } = require('../controllers/authController');
 
-// Регистрация и авторизация
 router.post('/register', register);
 router.post('/login', login);
+router.post('/refresh', refresh);
+router.post('/logout', logout);
 
 module.exports = router;
