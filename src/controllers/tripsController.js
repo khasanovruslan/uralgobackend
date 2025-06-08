@@ -1,5 +1,6 @@
 // File: src/controllers/tripsController.js
 const tripsService = require('../services/tripsService');
+const sanitizeTrip = require('../utils/sanitizeTrip');
 
 module.exports = {
   /** Создание новой поездки */
@@ -28,12 +29,18 @@ module.exports = {
   async searchTrips(req, res) {
     try {
       const filter = {
-        origin:       req.query.origin,
-        destination:  req.query.destination,
-        date:         req.query.date,
+        origin:      req.query.origin,
+        destination: req.query.destination,
+        date:        req.query.date,
+        minSeats:    Number(req.query.pax || 1),   // ← вот эта строка
+        limit:       Number(req.query.limit || 20), 
+        offset:      Number(req.query.offset || 0),
       };
+
       const list = await tripsService.searchTrips(filter);
-      return res.json(list);
+           // Преобразуем каждый trip в безопасный формат:
+     const safeList = list.map(sanitizeTrip);
+     return res.json(safeList);
     } catch (err) {
       return res.status(400).json({ message: err.message });
     }

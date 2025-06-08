@@ -10,6 +10,7 @@ const cors         = require('cors');
 const path         = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const geocodeRouter = require('./routes/geocode');
 
 
 const initSocket = require('./config/socket');
@@ -74,6 +75,7 @@ app.use('/api/chat',    require('./routes/chat'));
 app.use('/api/bookings',require('./routes/bookings'));
 app.use('/api/experiences', require('./routes/experiences'));
 app.use('/api/events',      require('./routes/events'));
+app.use('/api/geocode', geocodeRouter);
 
 // WebSocket
 initSocket(server);

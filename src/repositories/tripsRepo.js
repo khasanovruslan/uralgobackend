@@ -5,7 +5,7 @@ const Trip = require('../models/Trip');
 module.exports = {
   /**
    * Создает новую поездку
-   * @param {Object} tripData - { creatorId, origin, destination, departureTime, seats, initialPassengers, allowBooking, price, description, originLat, originLng, destinationLat, destinationLng, status }
+   * @param {Object} tripData - { creatorId, origin, destination, departureTime, seats, allowBooking, price, description, originLat, originLng, destinationLat, destinationLng, status }
    * @returns {Promise<Trip>}
    */
   async create(tripData) {
@@ -24,11 +24,12 @@ module.exports = {
       .withGraphFetched('creator');
   },
 
-  /**
-   * Поиск поездок по критериям
-   * @param {Object} filter - { origin?, destination?, date? }
-   * @returns {Promise<Trip[]>}
-   */
+    /**
+     * Поиск поездок по критериям
+     * @param {Object} filter - { origin?, destination?, date?, minSeats?, limit?, offset? }
+     * @returns {Promise<Trip[]>}
+     */
+
   async findTrips(filter) {
     let query = Trip.query();
 
@@ -43,6 +44,12 @@ module.exports = {
       // Фильтрация по дате (только дата, без времени)
       query.whereRaw("DATE(departure_time) = ?", [filter.date]);
     }
+    if (filter.minSeats) {
+    query.where('available_seats', '>=', filter.minSeats);
+    }
+
+    if (filter.limit)  query.limit(filter.limit);
+    if (filter.offset) query.offset(filter.offset);
 
     return await query.withGraphFetched('creator');
   },

@@ -1,26 +1,25 @@
-// File: src/db/migrations/XXXXXXXXXXXX_add_id_to_experience_participants.js
-
 exports.up = async function(knex) {
-  const hasTable = await knex.schema.hasTable('experience_participants');
-  if (hasTable) {
-    const hasIdColumn = await knex.schema.hasColumn('experience_participants', 'id');
-    if (!hasIdColumn) {
-      // Добавляем колонку id в начало (serial primary key)
-      await knex.schema.alterTable('experience_participants', table => {
-        table.increments('id').primary().first();
-      });
-    }
-  }
+  // 1) Сбрасываем существующий составной первичный ключ
+  await knex.raw(`
+    ALTER TABLE experience_participants
+    DROP CONSTRAINT IF EXISTS exp_part_pk;
+  `);
+
+  // 2) Добавляем новую колонку id как increments (serial + PRIMARY KEY)
+  await knex.schema.alterTable('experience_participants', table => {
+    table.increments('id').notNullable();
+  });
 };
 
+
 exports.down = async function(knex) {
-  const hasTable = await knex.schema.hasTable('experience_participants');
-  if (hasTable) {
-    const hasIdColumn = await knex.schema.hasColumn('experience_participants', 'id');
-    if (hasIdColumn) {
-      await knex.schema.alterTable('experience_participants', table => {
-        table.dropColumn('id');
-      });
-    }
-  }
+  // 1) Удаляем колонку id
+  await knex.schema.alterTable('experience_participants', table => {
+    table.dropColumn('id');
+  });
+
+  // 2) Восстанавливаем составной первичный ключ на двух полях
+  await knex.schema.alterTable('experience_participants', table => {
+    table.primary(['participant_id', 'experience_id']);
+  });
 };

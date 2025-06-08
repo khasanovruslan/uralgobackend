@@ -54,9 +54,6 @@ class Trip extends Model {
           type: 'integer',
           minimum: 0,
         },
-        initialPassengers: {
-          type: 'integer',
-        },
         allowBooking: {
           type: 'boolean',
         },

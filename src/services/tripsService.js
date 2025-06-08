@@ -7,7 +7,7 @@ module.exports = {
   /**
    * Создает новую поездку
    * @param {number} userId
-   * @param {Object} tripData - { origin, destination, departureTime, seats, initialPassengers, allowBooking, price, description, originLat, originLng, destinationLat, destinationLng, status? }
+   * @param {Object} tripData - { origin, destination, departureTime, seats, allowBooking, price, description, originLat, originLng, destinationLat, destinationLng, status? }
    * @returns {Promise<Object>}
    */
   async createTrip(userId, tripData) {
@@ -23,7 +23,6 @@ module.exports = {
       destination: tripData.destination,
       departureTime: tripData.departureTime,
       seats: tripData.seats,
-      initialPassengers: tripData.initialPassengers || 0,
       allowBooking: tripData.allowBooking,
       price: tripData.price ?? null,
       description: tripData.description ?? null,
