@@ -26,8 +26,26 @@ app.use(
   })
 );
 
-app.use(helmet());
-// ===== Настройка rate limit =====
+const { contentSecurityPolicy, crossOriginResourcePolicy } = require('helmet');
+
+app.use(
+  contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      // разрешаем загружать <img> из своего фронта, из data: и с бэкенда:
+      imgSrc: ["'self'", "data:", process.env.CLIENT_URL, "http://localhost:3000"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "https:", "'unsafe-inline'"],
+      // остальные директивы оставьте ваши
+    }
+  })
+);
+
+// позволим отдавать ресурсы с любого origin
+app.use(
+  crossOriginResourcePolicy({ policy: 'cross-origin' })
+);
+
 
 // 1) Общий лимитер: 200 запросов за 10 минут на один IP
 const generalLimiter = rateLimit({
@@ -55,10 +73,17 @@ app.use(generalLimiter);
 app.use(express.json());
 app.use(cookieParser());
 
-// Раздача папки uploads по URL /uploads
+
+const uploadsPath = path.resolve(process.cwd(), 'uploads');
 app.use(
   '/uploads',
-  express.static(path.resolve(__dirname, '../uploads'))
+  cors({ origin: '*' }),         // даём любому клиенту доступ
+  express.static(uploadsPath, {
+    setHeaders(res, filePath) {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      // (при желании) можно добавить другие CORS-заголовки
+    }
+  })
 );
 
 // Health-check
