@@ -48,10 +48,6 @@ class Trip extends Model {
         },
         seats: {
           type: 'integer',
-          minimum: 1,
-        },
-        availableSeats: {
-          type: 'integer',
           minimum: 0,
         },
         allowBooking: {

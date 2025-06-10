@@ -45,7 +45,7 @@ module.exports = {
       query.whereRaw("DATE(departure_time) = ?", [filter.date]);
     }
     if (filter.minSeats) {
-    query.where('available_seats', '>=', filter.minSeats);
+    query.where('seats', '>=', filter.minSeats);
     }
 
     if (filter.limit)  query.limit(filter.limit);
