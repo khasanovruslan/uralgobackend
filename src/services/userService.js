@@ -30,7 +30,7 @@ module.exports = {
 
     const patchData = {};
 
-    if (data.name !== undefined)     patchData.name           = data.name;
+    if (data.fullName !== undefined)     patchData.fullName           = data.fullName;
     if (data.email !== undefined)    patchData.email          = data.email;
     if (data.phone !== undefined)    patchData.phone          = data.phone;
     if (data.city !== undefined)     patchData.city           = data.city;

@@ -1,9 +1,13 @@
 // File: src/routes/tripsArchive.js
+
 const router = require('express').Router();
 const authMiddleware = require('../middlewares/authMiddleware');
-const { getArchivedTrips } = require('../controllers/tripsArchiveController');
+const { getFinishedTrips } = require('../controllers/archiveController');
 
-// Архив поездок (прошедшие)
-router.get('/', authMiddleware, getArchivedTrips);
+// Все операции требуют авторизации
+router.use(authMiddleware);
+
+// Получить все завершённые поездки
+router.get('/', getFinishedTrips);
 
 module.exports = router;
