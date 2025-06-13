@@ -1,7 +1,9 @@
 // File: src/index.js
 require('dotenv').config();
-// Подключаем и инициализируем Objection/Knex
+// 1) Подключаем и инициализируем Objection/Knex
 require('./config/db');
+// 1.1) Регистрируем все модели Objection
+require('./models');
 
 const cookieParser = require('cookie-parser');
 const express      = require('express');
@@ -100,9 +102,11 @@ app.use('/api/archive', require('./routes/tripsArchive'));
 app.use('/api/chat',    require('./routes/chat'));
 app.use('/api/bookings',require('./routes/bookings'));
 app.use('/api/experiences', require('./routes/experiences'));
-app.use('/api/events',      require('./routes/events'));
+app.use('/api/events', require('./routes/events'));
+app.use('/api/events/:eventId/chat', require('./routes/eventChat'));
 app.use('/api/geocode', geocodeRouter);
-app.use('/api/geonames', geonamesRouter)
+app.use('/api/geonames', geonamesRouter);
+app.use('/api/events/:eventId/chat', require('./routes/eventChat'));
 
 
 // WebSocket

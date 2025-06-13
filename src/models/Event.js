@@ -16,40 +16,31 @@ class Event extends Model {
     return json;
   }
 
-  static get jsonSchema() {
-    return {
-      type: 'object',
+    static get jsonSchema() {
+     return {
+       type: 'object',
       required: ['type', 'title', 'latitude', 'longitude', 'ownerId'],
-      properties: {
-        id: {
-          type: 'integer',
-        },
-        type: {
-          type: 'string',
-          minLength: 1,
-          maxLength: 50,
-        },
-        title: {
-          type: 'string',
-          minLength: 1,
-          maxLength: 255,
-        },
-        latitude: {
-          type: 'number',
-        },
-        longitude: {
-          type: 'number',
-        },
-        ownerId: {
-          type: 'integer',
-        },
-        createdAt: {
-          type: 'string',
-          format: 'date-time',
-        },
-      },
-    };
-  }
+       properties: {
+         id:           { type: 'integer' },
+         type:         { type: 'string', minLength: 1, maxLength: 50 },
+         title:        { type: 'string', minLength: 1, maxLength: 255 },
+        description:  { type: ['string','null'] },
+        latitude:     { type: 'number' },
+        longitude:    { type: 'number' },
+        address:      { type: ['string','null'] },
+        startTime:    { type: ['string','null'], format: 'date-time' },
+        endTime:      { type: ['string','null'], format: 'date-time' },
+        maxParticipants: { type: ['integer','null'] },
+        imageUrl:     { type: ['string','null'], maxLength: 255 },
+        category:     { type: ['string','null'], maxLength: 100 },
+        tags:         { type: ['array','null'], items: { type: 'string' } },
+        createdAt:    { type: 'string', format: 'date-time' },
+        updatedAt:    { type: 'string', format: 'date-time' },
+        ownerId:      { type: 'integer' },
+       },
+     };
+   }
+
 
   static get relationMappings() {
     const User       = require('./User');
@@ -87,6 +78,15 @@ class Event extends Model {
         join: {
           from: 'events.id',
           to:   'event_members.event_id',
+        },
+      },
+      // Чат события (1:1)
+      chat: {
+        relation: Model.HasOneRelation,
+        modelClass: require('./EventChat'),
+        join: {
+          from: 'events.id',
+          to:   'event_chats.event_id',
         },
       },
     };
