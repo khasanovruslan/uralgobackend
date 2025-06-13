@@ -9,34 +9,30 @@ module.exports = {
    * @param {number} eventId
    */
   async createChatForEvent(eventId) {
-    let chat = await EventChat.query().findOne({ eventId });
-    if (!chat) {
-      chat = await EventChat.query().insertAndFetch({ eventId });
-    }
-    return chat;
-  },
+   let chat = await EventChat.query()
+     .where('event_id', eventId)
+     .first();
+
+  if (!chat) {
+     chat = await EventChat.query().insertAndFetch({ eventId });
+  }
+
+  return chat;
+},
 
   /**
    * Возвращает чат и все сообщения с авторами
    * @param {number} eventId
    */
   async getChatWithMessages(eventId) {
-    const chat = await EventChat.query()
-      .findOne({ eventId })
-      .withGraphFetched('messages(orderByTime).[user(selectBasic)]')
-      .modifiers({
-        orderByTime(builder) {
-          builder.orderBy('created_at', 'asc');
-        },
-        selectBasic(builder) {
-          builder.select('id', 'full_name', 'avatar_url');
-        },
-      });
+     const chat = await EventChat.query()
+     .where('event_id', eventId)
+     .withGraphFetched('messages(orderByTime).[user(selectBasic)]')
+     .modifiers({ /*…*/ })
+     .first();
 
-    if (!chat) {
-      throw new Error('Чат для этого события не найден');
-    }
-    return chat;
+    if (!chat) throw new Error('Чат для этого события не найден');
+  return chat;
   },
 
   /**
@@ -45,9 +41,10 @@ module.exports = {
    * @param {number} userId
    * @param {string} text
    */
-  async postMessage(eventId, userId, text) {
-    const chat = await EventChat.query().findOne({ eventId });
-    if (!chat) throw new Error('Чат для этого события не найден');
+ async postMessage(eventId, userId, text) {
+  const chat = await EventChat.query().where('event_id', eventId).first();
+  if (!chat) throw new Error('Чат для этого события не найден');
+
 
     const member = await EventMember.query().findOne({ eventId, userId });
     if (!member) throw new Error('Вы не участник этого события');

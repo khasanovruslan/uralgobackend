@@ -40,7 +40,7 @@ class EventMember extends Model {
         userId:    { type: 'integer' },  //   — Objection сконвертирует это в event_id/user_id
         event_id:  { type: 'integer' },  // если вставляете { event_id: … } напрямую
         user_id:   { type: 'integer' },  //   — Обход верификации
-        status:    { type: 'string', enum: ['pending','accepted','rejected'] },
+        status:    { type: 'string', enum: ['pending','confirmed','canceled'] },
         joinedAt:  { type: ['string','null'], format: 'date-time' },
         joined_at: { type: ['string','null'], format: 'date-time' },
       },

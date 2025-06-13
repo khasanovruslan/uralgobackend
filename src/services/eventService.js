@@ -32,14 +32,14 @@ module.exports = {
       image_url:       data.imageUrl || null,
       category:        data.category || null,
       tags:            data.tags || null,
-      owner_id:        ownerId,
+      ownerId:         ownerId,
     });
 
     // Добавляем создателя как участника
     await EventMember.query().insert({
       event_id: ev.id,
       user_id:  ownerId,
-      status:   'accepted',
+      status:   'confirmed',
     });
 
     // Создаём чат
@@ -91,7 +91,7 @@ module.exports = {
     const rec = await EventMember.query().insertAndFetch({
       event_id: eventId,
       user_id:  userId,
-      status:   'accepted',
+      status:   'confirmed',
     });
     return {
       eventId: rec.event_id,
@@ -101,14 +101,28 @@ module.exports = {
     };
   },
 
-  /**
-   * Выход из события
-   */
   async leaveEvent(userId, eventId) {
     const deleted = await EventMember.query()
       .delete()
       .where({ eventId, userId });
     if (!deleted) throw new Error('Вы не участник события');
     return { message: 'Вы вышли из события' };
+  },
+  async listEvents({ bbox } = {}) {
+    let q = Event.query().withGraphFetched('owner'); // подтягиваем создателя
+    if (bbox) {
+      const [minLat, minLng, maxLat, maxLng] = bbox;
+      q = q
+        .whereBetween('latitude', [minLat, maxLat])
+        .andWhereBetween('longitude', [minLng, maxLng]);
+    }
+    return q;
+  },
+
+  // метод получения одного события
+  async getEvent(eventId) {
+    return Event.query()
+      .findById(eventId)
+      .withGraphFetched('[owner, members]');
   },
 };

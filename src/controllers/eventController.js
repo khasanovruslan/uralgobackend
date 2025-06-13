@@ -20,13 +20,18 @@ module.exports = {
     }
   },
 
-  // GET /api/events
+ // GET /api/events
   async listEvents(req, res) {
     try {
-      const all = await eventService.listAll();
-      return res.json(all);
+      const { bbox } = req.query;
+      const params = {};
+      if (bbox) {
+        params.bbox = bbox.split(',').map(parseFloat);
+      }
+      const events = await eventService.listEvents(params);
+      res.json(events);
     } catch (e) {
-      return res.status(400).json({ message: e.message });
+      res.status(400).json({ message: e.message });
     }
   },
 
@@ -34,10 +39,10 @@ module.exports = {
   async getEvent(req, res) {
     try {
       const id = parseInt(req.params.id, 10);
-      const ev = await eventService.getById(id);
-      return res.json(ev);
+      const ev = await eventService.getEvent(id);
+      res.json(ev);
     } catch (e) {
-      return res.status(404).json({ message: e.message });
+      res.status(404).json({ message: e.message });
     }
   },
 
