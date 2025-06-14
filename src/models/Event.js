@@ -11,10 +11,16 @@ class Event extends Model {
     return snakeCaseMappers();
   }
 
-  $formatJson(json) {
+    $formatJson(json) {
     json = super.$formatJson(json);
+    // Удаляем snake_case-поля, если они появились рядом с camelCase
+    delete json.start_time;
+    delete json.end_time;
+    delete json.max_participants;
+    delete json.image_url;
     return json;
   }
+
 
     static get jsonSchema() {
      return {
@@ -49,12 +55,12 @@ class Event extends Model {
     return {
       // Владелец мероприятия
       owner: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: User,
-        join: {
-          from: 'events.owner_id',
-          to:   'users.id',
-        },
+      relation: Model.BelongsToOneRelation,
+      modelClass: User,
+      join: {
+        from: 'events.owner_id',
+        to:   'users.id',
+      },
       },
 
       // Участники через связь
