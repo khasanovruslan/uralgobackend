@@ -6,37 +6,63 @@ const Trip    = require('../models/Trip');
 module.exports = {
   // Создать бронирование: уменьшить availableSeats в Trip
   async create(userId, { tripId, seatsReserved }) {
-    // 1) Проверяем существование поездки
-    const trip = await Trip.query().findById(tripId);
-    if (!trip) {
-      throw new Error('Поездка не найдена');
+  // 1) Проверяем существование поездки
+  const trip = await Trip.query().findById(tripId);
+  if (!trip) {
+    throw new Error('Поездка не найдена');
+  }
+
+  // 1.1) Запрещаем автору бронировать свою же поездку
+  if (trip.creatorId === userId) {
+    throw new Error('Нельзя бронировать свою поездку');
+  }
+
+  // 2) Проверяем доступность мест
+  if (trip.seats < seatsReserved) {
+    throw new Error('Недостаточно свободных мест');
+  }
+
+  // 3) Проверяем, есть ли уже бронь
+  let existing = await Booking.query()
+  .where('user_id', userId)
+  .where('trip_id', tripId)
+  .first();
+
+  if (existing) {
+    if (existing.status === 'canceled') {
+      // Реактивируем
+      await Booking.query().findById(existing.id).patch({
+        seatsReserved,
+        status: 'pending',
+        updatedAt: new Date().toISOString(),
+      });
+
+      // Уменьшаем availableSeats
+      await Trip.query().findById(tripId).patch({
+        seats: trip.seats - seatsReserved,
+      });
+
+      return await Booking.query().findById(existing.id);
+    } else {
+      throw new Error('Вы уже забронировали эту поездку');
     }
+  }
 
-    // 1.1) Запрещаем автору бронировать свою же поездку
-    if (trip.creatorId === userId) {
-      throw new Error('Нельзя бронировать свою поездку');
-    }
+  // 4) Создаём новую бронь
+  const booking = await Booking.query().insert({
+    userId,
+    tripId,
+    seatsReserved,
+    status: 'pending',
+  });
 
-    // 2) Проверяем доступность мест
-    if (trip.seats < seatsReserved) {
-      throw new Error('Недостаточно свободных мест');
-    }
+  // 5) Уменьшаем availableSeats
+  await Trip.query().findById(tripId).patch({
+    seats: trip.seats - seatsReserved,
+  });
 
-    // 3) Создаём бронирование
-    const booking = await Booking.query().insert({
-      userId,
-      tripId,
-      seatsReserved,
-      status: 'pending',
-    });
-
-    // 4) Уменьшаем availableSeats у поездки
-    await Trip.query().findById(tripId).patch({
-      seats: trip.seats - seatsReserved,
-    });
-
-    return booking;
-  },
+  return booking;
+},
 
   // Получить все бронирования текущего пользователя
   async getByUser(userId) {

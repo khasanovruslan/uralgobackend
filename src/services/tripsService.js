@@ -2,6 +2,8 @@
 
 const tripsRepo = require('../repositories/tripsRepo');
 const userRepo  = require('../repositories/userRepo');
+const bookingRepo   = require('../repositories/bookingsRepo'); 
+
 
 module.exports = {
   /**
@@ -111,5 +113,50 @@ module.exports = {
       throw new Error('Нет доступа для удаления этой поездки');
     }
     await tripsRepo.deleteById(tripId);
-  }
+  },
+  async getCreatedByUser(userId) {
+    // Просто фильтруем по creatorId и подтягиваем creator
+    return await tripsRepo.findTrips({ creatorId: userId });
+  },
+
+  /**
+   * Получить поездки, в которых участвует пользователь, но не его собственные
+   */
+  async getJoinedByUser(userId) {
+  // Получаем все бронирования пользователя (pending/confirmed)
+  const bookings = await bookingRepo.findByUser(userId, ['pending', 'confirmed']);
+  if (!bookings.length) return [];
+
+  const tripIds = bookings.map(b => b.tripId);
+
+  // Получаем все поездки, исключая свои
+  const trips = await tripsRepo.findTrips({
+    ids: tripIds,
+    excludeCreatorId: userId,
+  });
+
+  // Сопоставляем поездку и бронирование
+  // Создаем map: tripId -> booking
+  const bookingsMap = {};
+  bookings.forEach(b => {
+    bookingsMap[b.tripId] = b;
+  });
+
+  function sanitizeCreator(creator) {
+  if (!creator) return null;
+  return {
+    id: creator.id,
+    fullName: creator.fullName,
+    photoUrl: creator.photoUrl ?? creator.avatarUrl ?? null,
+  };
+}
+
+  // Для каждой поездки добавляем bookingId
+  return trips.map(trip => ({
+    ...trip,
+    creator: sanitizeCreator(trip.creator),
+    bookingId: bookingsMap[trip.id]?.id,
+    bookingStatus: bookingsMap[trip.id]?.status,
+  }));
+},
 };

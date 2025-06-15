@@ -1,6 +1,7 @@
 // File: src/controllers/tripsController.js
 const tripsService = require('../services/tripsService');
 const sanitizeTrip = require('../utils/sanitizeTrip');
+const bookingRepo   = require('../repositories/bookingsRepo'); 
 
 module.exports = {
   /** Создание новой поездки */
@@ -68,5 +69,23 @@ module.exports = {
     } catch (err) {
       return res.status(400).json({ message: err.message });
     }
-  }
+  },
+  async getMyCreated(req, res) {
+    try {
+      const list = await tripsService.getCreatedByUser(req.user.id);
+      return res.json(list);
+    } catch (err) {
+      return res.status(400).json({ message: err.message });
+    }
+  },
+
+  // GET /api/trips/my/joined
+  async getMyJoined(req, res) {
+    try {
+      const list = await tripsService.getJoinedByUser(req.user.id);
+      return res.json(list);
+    } catch (err) {
+      return res.status(400).json({ message: err.message });
+    }
+  },
 };

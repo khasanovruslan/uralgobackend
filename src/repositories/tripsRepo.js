@@ -32,7 +32,15 @@ module.exports = {
 
   async findTrips(filter) {
     let query = Trip.query();
-
+     if (filter.ids) {
+      query.whereIn('id', filter.ids);
+    }
+    if (filter.excludeCreatorId) {
+      query.whereNot('creator_id', filter.excludeCreatorId);
+    }
+    if (filter.creatorId) {
+      query.where('creator_id', filter.creatorId);
+    }
     if (filter.origin) {
       // Ilike для регистронезависимого поиска
       query.where('origin', 'ilike', `%${filter.origin}%`);

@@ -6,7 +6,9 @@ const {
   getTrip,
   searchTrips,
   updateTrip,
-  deleteTrip
+  deleteTrip,
+  getMyCreated, 
+  getMyJoined,
 } = require('../controllers/tripsController');
 
 // Все маршруты требуют авторизации
@@ -26,5 +28,9 @@ router.put('/:id', updateTrip);
 
 // DELETE /api/trips/:id   — удалить поездку
 router.delete('/:id', deleteTrip);
+
+router.get('/my/created', getMyCreated);
+
+router.get('/my/joined',  getMyJoined);
 
 module.exports = router;
