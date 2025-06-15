@@ -14,7 +14,6 @@ class User extends Model {
   $formatJson(json) {
     json = super.$formatJson(json);
     delete json.password;
-    delete json.passport;
     return json;
   }
 

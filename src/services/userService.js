@@ -5,18 +5,27 @@ const User     = require('../models/User');
 
 module.exports = {
   async getProfile(userId) {
-    // Возвращаем пользователя с ролями (camelCase за счёт snakeCaseMappers())
-    const user = await User.query()
-      .findById(userId)
-      .withGraphFetched('roles');
-    if (!user) throw new Error('Пользователь не найден');
+  const user = await User.query()
+    .findById(userId)
+    .withGraphFetched('roles');
+  if (!user) throw new Error('Пользователь не найден');
 
-    // Удалим приватные поля (пароль) перед отдачей клиенту
-    delete user.password;
-    delete user.createdAt;
-    delete user.updatedAt;
-    return user;
-  },
+  // Приводим birthDate к строке YYYY-MM-DD (без времени и часовых поясов)
+  if (user.birthDate instanceof Date) {
+    // toISOString выдаст UTC-дату, поэтому берём локальные компоненты:
+    const pad = (n) => n.toString().padStart(2, '0');
+    const d = user.birthDate;
+    const year  = d.getFullYear();
+    const month = pad(d.getMonth() + 1);
+    const day   = pad(d.getDate());
+    user.birthDate = `${year}-${month}-${day}`;
+  }
+
+  delete user.password;
+  delete user.createdAt;
+  delete user.updatedAt;
+  return user;
+},
 
   async updateProfile(userId, data) {
     //
@@ -34,7 +43,7 @@ module.exports = {
     if (data.email !== undefined)    patchData.email          = data.email;
     if (data.phone !== undefined)    patchData.phone          = data.phone;
     if (data.city !== undefined)     patchData.city           = data.city;
-    if (data.birthDate !== undefined)    patchData.birth_date     = data.birthDate;
+    if (data.birthDate !== undefined) { patchData.birth_date = data.birthDate || null;}
     if (data.passport !== undefined)     patchData.passport       = data.passport;
     if (data.driverLicense !== undefined) patchData.driver_license = data.driverLicense;
     if (data.photoUrl !== undefined)      patchData.photo_url      = data.photoUrl;
