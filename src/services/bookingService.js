@@ -12,6 +12,11 @@ module.exports = {
       throw new Error('Поездка не найдена');
     }
 
+    // 1.1) Запрещаем автору бронировать свою же поездку
+    if (trip.creatorId === userId) {
+      throw new Error('Нельзя бронировать свою поездку');
+    }
+
     // 2) Проверяем доступность мест
     if (trip.seats < seatsReserved) {
       throw new Error('Недостаточно свободных мест');
@@ -26,9 +31,10 @@ module.exports = {
     });
 
     // 4) Уменьшаем availableSeats у поездки
-  await Trip.query().findById(tripId).patch({
-     seats: trip.seats - seatsReserved,
-   });
+    await Trip.query().findById(tripId).patch({
+      seats: trip.seats - seatsReserved,
+    });
+
     return booking;
   },
 
@@ -55,7 +61,7 @@ module.exports = {
     // 3) Если статус !== 'canceled', возвращаем места поездке
     if (booking.status !== 'canceled') {
       const trip = await Trip.query().findById(booking.tripId);
-       await Trip.query().findById(booking.tripId).patch({ seats: trip.seats + booking.seatsReserved });
+      await Trip.query().findById(booking.tripId).patch({ seats: trip.seats + booking.seatsReserved });
     }
 
     // 4) Обновляем статус в bookings на 'canceled'
