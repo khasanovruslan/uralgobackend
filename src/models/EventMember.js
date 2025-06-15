@@ -4,6 +4,8 @@ const { Model, snakeCaseMappers } = require('objection');
 
 console.log('>>> inside EventMember definition; snakeCaseMappers applied:', !!(snakeCaseMappers()));
 
+
+
 class EventMember extends Model {
   static get tableName() {
     return 'event_members';
@@ -18,6 +20,7 @@ class EventMember extends Model {
   static get columnNameMappers() {
     return snakeCaseMappers();
   }
+  
 
   // 3) Убираем требование camelCase-полей и/или добавляем snake_case
   //    Теперь в качестве допустимых ключей для вставки можно использовать

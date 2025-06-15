@@ -122,7 +122,7 @@ module.exports = {
   async leaveEvent(userId, eventId) {
     const deleted = await EventMember.query()
       .delete()
-      .where({ eventId, userId });
+      .where('event_id', eventId)
     if (!deleted) throw new Error('Вы не участник события');
     return { message: 'Вы вышли из события' };
   },

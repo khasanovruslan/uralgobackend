@@ -35,6 +35,7 @@ module.exports = {
      if (filter.ids) {
       query.whereIn('id', filter.ids);
     }
+    
     if (filter.excludeCreatorId) {
       query.whereNot('creator_id', filter.excludeCreatorId);
     }
@@ -48,10 +49,11 @@ module.exports = {
     if (filter.destination) {
       query.where('destination', 'ilike', `%${filter.destination}%`);
     }
-    if (filter.date) {
-      // Фильтрация по дате (только дата, без времени)
-      query.whereRaw("DATE(departure_time) = ?", [filter.date]);
-    }
+    if (filter.from && filter.to) {
+    query
+      .where('departure_time', '>=', filter.from)
+      .andWhere('departure_time', '<=', filter.to)
+  }
     if (filter.minSeats) {
     query.where('seats', '>=', filter.minSeats);
     }

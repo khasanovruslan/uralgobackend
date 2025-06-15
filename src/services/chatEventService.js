@@ -2,6 +2,7 @@
 const EventChat        = require('../models/EventChat');
 const EventChatMessage = require('../models/EventChatMessage');
 const EventMember      = require('../models/EventMember');
+const Event            = require('../models/Event'); // Добавил импорт
 
 module.exports = {
   /**
@@ -9,16 +10,16 @@ module.exports = {
    * @param {number} eventId
    */
   async createChatForEvent(eventId) {
-   let chat = await EventChat.query()
-     .where('event_id', eventId)
-     .first();
+    let chat = await EventChat.query()
+      .where('event_id', eventId)
+      .first();
 
-  if (!chat) {
-     chat = await EventChat.query().insertAndFetch({ eventId });
-  }
+    if (!chat) {
+      chat = await EventChat.query().insertAndFetch({ eventId });
+    }
 
-  return chat;
-},
+    return chat;
+  },
 
   /**
    * Возвращает чат и все сообщения с авторами
@@ -29,11 +30,11 @@ module.exports = {
       .where('event_id', eventId)
       .withGraphFetched('messages(orderByTime).[user(selectBasic)]')
       .modifiers({
-        // этот модификатор нужен, чтобы сортировать сообщения
+        // сортировка сообщений
         orderByTime(builder) {
           builder.orderBy('created_at', 'asc');
         },
-        // а этот — чтобы подтянуть только id, full_name, avatar_url пользователя
+        // только id, full_name, avatar_url пользователя
         selectBasic(builder) {
           builder.select('id', 'full_name', 'avatar_url');
         }
@@ -53,16 +54,22 @@ module.exports = {
    * @param {number} userId
    * @param {string} text
    */
- async postMessage(eventId, userId, text) {
-  const chat = await EventChat.query().where('event_id', eventId).first();
-  if (!chat) throw new Error('Чат для этого события не найден');
+  async postMessage(eventId, userId, text) {
+    const chat = await EventChat.query().where('event_id', eventId).first();
+    if (!chat) throw new Error('Чат для этого события не найден');
 
+    // Получаем событие для проверки owner
+    const event = await Event.query().findById(eventId);
+    if (!event) throw new Error('Событие не найдено');
 
-      const member = await EventMember.query()
-        .where('event_id', eventId)
-        .andWhere('user_id', userId)
-        .first();
-    if (!member) throw new Error('Вы не участник этого события');
+    // Проверяем организатор ИЛИ участник
+    const isOwner = event.ownerId === userId;
+    const isMember = await EventMember.query()
+      .where('event_id', eventId)
+      .andWhere('user_id', userId)
+      .first();
+
+    if (!isOwner && !isMember) throw new Error('Вы не участник этого события');
 
     const msg = await EventChatMessage.query().insertAndFetch({
       chatId: chat.id,
@@ -88,7 +95,8 @@ module.exports = {
   async kickMember(eventId, userId) {
     const deleted = await EventMember.query()
       .delete()
-      .where({ eventId, userId });
+      .where('event_id', eventId)
+      .andWhere('user_id', userId);
 
     if (!deleted) throw new Error('Этот пользователь не состоит в событии');
     return { message: 'Пользователь исключён из события' };
