@@ -4,6 +4,8 @@ require('dotenv').config();
 require('./config/db');
 // 1.1) Регистрируем все модели Objection
 require('./models');
+require('./cron/archiveTrips');
+
 
 const cookieParser = require('cookie-parser');
 const express      = require('express');
@@ -106,6 +108,8 @@ app.use('/api/events', require('./routes/events'));
 app.use('/api/events/:eventId/chat', require('./routes/eventChat'));
 app.use('/api/geocode', geocodeRouter);
 app.use('/api/geonames', geonamesRouter);
+app.use('/api', require('./routes/chatTrip'))
+
 
 // WebSocket
 initSocket(server);

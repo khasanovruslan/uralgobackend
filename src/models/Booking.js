@@ -8,8 +8,8 @@ class Booking extends Model {
   }
 
   static get columnNameMappers() {
-    return snakeCaseMappers();
-  }
+  return snakeCaseMappers();
+}
 
   $formatJson(json) {
     json = super.$formatJson(json);
