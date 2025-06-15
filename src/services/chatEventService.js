@@ -25,14 +25,26 @@ module.exports = {
    * @param {number} eventId
    */
   async getChatWithMessages(eventId) {
-     const chat = await EventChat.query()
-     .where('event_id', eventId)
-     .withGraphFetched('messages(orderByTime).[user(selectBasic)]')
-     .modifiers({ /*…*/ })
-     .first();
+    const chat = await EventChat.query()
+      .where('event_id', eventId)
+      .withGraphFetched('messages(orderByTime).[user(selectBasic)]')
+      .modifiers({
+        // этот модификатор нужен, чтобы сортировать сообщения
+        orderByTime(builder) {
+          builder.orderBy('created_at', 'asc');
+        },
+        // а этот — чтобы подтянуть только id, full_name, avatar_url пользователя
+        selectBasic(builder) {
+          builder.select('id', 'full_name', 'avatar_url');
+        }
+      })
+      .first();
 
-    if (!chat) throw new Error('Чат для этого события не найден');
-  return chat;
+    if (!chat) {
+      throw new Error('Чат для этого события не найден');
+    }
+
+    return chat;
   },
 
   /**
@@ -46,7 +58,10 @@ module.exports = {
   if (!chat) throw new Error('Чат для этого события не найден');
 
 
-    const member = await EventMember.query().findOne({ eventId, userId });
+      const member = await EventMember.query()
+        .where('event_id', eventId)
+        .andWhere('user_id', userId)
+        .first();
     if (!member) throw new Error('Вы не участник этого события');
 
     const msg = await EventChatMessage.query().insertAndFetch({
