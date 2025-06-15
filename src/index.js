@@ -109,6 +109,10 @@ app.use('/api/events/:eventId/chat', require('./routes/eventChat'));
 app.use('/api/geocode', geocodeRouter);
 app.use('/api/geonames', geonamesRouter);
 app.use('/api', require('./routes/chatTrip'))
+app.use('/api/admin', require('./routes/admin'));
+
+
+
 
 
 // WebSocket

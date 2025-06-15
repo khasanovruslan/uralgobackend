@@ -21,7 +21,9 @@ function sanitizeUser(user) {
     email: user.email,
     phone: user.phone,
     isDriver: user.isDriver,
-    roles: user.roles, // оставляем роль(ли) — их не считаем супер-чувствительными
+    roles: user.roles, 
+    photoUrl:  user.photoUrl,   // добавили
+    avatarUrl: user.avatarUrl,  // добавили
   };
 }
 
